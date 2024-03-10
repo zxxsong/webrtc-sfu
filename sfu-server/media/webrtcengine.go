@@ -53,7 +53,7 @@ func NewWebRTCEngine() *WebRTCEngine {
 	return w
 }
 
-//创建发送数据对象 朝接收者发送数据
+// 创建发送数据对象 朝接收者发送数据
 func (s WebRTCEngine) CreateSender(offer webrtc.SessionDescription, pc **webrtc.PeerConnection, addVideoTrack, addAudioTrack **webrtc.Track, stop chan int) (answer webrtc.SessionDescription, err error) {
 
 	*pc, err = s.api.NewPeerConnection(s.cfg)
@@ -80,7 +80,7 @@ func (s WebRTCEngine) CreateSender(offer webrtc.SessionDescription, pc **webrtc.
 
 }
 
-//创建接收者对象
+// 创建接收者对象
 func (s WebRTCEngine) CreateReceiver(offer webrtc.SessionDescription, pc **webrtc.PeerConnection, videoTrack, audioTrack **webrtc.Track, stop chan int, pli chan int) (answer webrtc.SessionDescription, err error) {
 
 	*pc, err = s.api.NewPeerConnection(s.cfg)
@@ -99,7 +99,8 @@ func (s WebRTCEngine) CreateReceiver(offer webrtc.SessionDescription, pc **webrt
 		return webrtc.SessionDescription{}, err
 	}
 
-	//监听OnTrack事件
+	// 监听OnTrack事件
+	// OnTrack sets an event handler which is called when remote track arrives from a remote peer.
 	(*pc).OnTrack(func(remoteTrack *webrtc.Track, receiver *webrtc.RTPReceiver) {
 
 		//视频处理
@@ -132,6 +133,9 @@ func (s WebRTCEngine) CreateReceiver(offer webrtc.SessionDescription, pc **webrt
 				util.Errorf("TODO codecs.H264Packet")
 			}
 
+			// SampleBuilder contains all packets
+			// maxLate determines how long we should wait until we get a valid Sample
+			// The larger the value the less packet loss you will see, but higher latency
 			builder := samplebuilder.New(averageRtpPacketsPerFrame*5, pkt)
 			for {
 				select {

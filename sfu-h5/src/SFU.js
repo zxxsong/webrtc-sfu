@@ -6,8 +6,9 @@ export default class SFU extends EventEmitter{
     constructor(userId,roomId){
         super();
         this._rtc = new RTC();
-
-        var sfuUrl = "wss://localhost:3000/ws?userId=" + userId + "&roomId=" + roomId;
+        
+        var ipAddress = "10.62.131.101"
+        var sfuUrl = "wss://" + ipAddress + ":3000/ws?userId=" + userId + "&roomId=" + roomId;
 
         this.socket = new WebSocket(sfuUrl);
 

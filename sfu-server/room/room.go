@@ -205,12 +205,12 @@ func processPublish(user *User, message map[string]interface{}, roomManager *Roo
 	}
 	respStr := string(respByte)
 	if respStr != "" {
-		//返回给自己jsep
+		//返回给自己jsep// 向发出pub请求信令的客户端发送消息，表示确认
 		user.sendMessage(MethodOnPublish, resp)
 
 		onPublish := make(map[string]interface{})
 		onPublish["pubid"] = user.ID()
-		//发送给房间其他人jsep
+		//发送给房间其他人jsep// 接下来其他客户端会发送subscribe消息给服务端
 		r.sendMessage(user, MethodOnPublish, resp)
 		return
 	}
@@ -256,11 +256,12 @@ func processSubscribe(user *User, message map[string]interface{}, roomManager *R
 		log.Print(err.Error())
 		return
 	}
+	// 订阅后，服务端向该订阅方发送所有的pub流，pli为 开启流的第一个关键帧
 	r.sendPLI(user.ID())
 	respStr := string(respByte)
 
 	if respStr != "" {
-		//返回给自己jsep
+		//返回给自己jsep// 向该user 发送subscribe消息
 		user.sendMessage(MethodOnSubscribe, resp)
 		log.Printf("Subscribe返回给自己的Id:%s", user.ID())
 		return
@@ -415,14 +416,14 @@ func (room *Room) addWebRTCPeer(id string, sender bool) {
 	} else {
 		room.subPeerLock.Lock()
 		defer room.subPeerLock.Unlock()
-		if room.subPeers[id] != nil {
+		if room.subPeers[id] != nil { //由于之前的关闭，对map相应‘键值’没有去除操作，所以调用 值 的stop方法
 			room.subPeers[id].Stop()
 		}
 		room.subPeers[id] = media.NewWebRTCPeer(id)
 	}
 }
 
-//关键侦丢包重传
+// 关键侦丢包重传
 func (r *Room) sendPLI(skipID string) {
 	log.Print("Room.sendPLI")
 	r.pubPeerLock.RLock()
@@ -459,7 +460,7 @@ func (r *Room) answer(id string, pubid string, offer webrtc.SessionDescription, 
 	var answer webrtc.SessionDescription
 	if sender {
 		answer, err = p.AnswerSender(offer)
-	} else {
+	} else { // 订阅端为用户强制订阅所有发布流
 		r.pubPeerLock.RLock()
 
 		pub := r.pubPeers[pubid]

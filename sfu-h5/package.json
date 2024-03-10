@@ -7,7 +7,7 @@
     "build": "webpack --mode=production --config webpack.config.js",
     "start": "webpack-dev-server --config ./webpack.config.js --mode development --open --https --cert ./configs/server.crt --key  ./configs/server.key"
   },
-  "author": "kangshaojun",
+  "author": "zxxsong",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.4.3",

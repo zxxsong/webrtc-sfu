@@ -1,15 +1,16 @@
 package media
 
 import (
-	"time"
 	"conference/util"
 	"github.com/pion/webrtc/v2"
+	"time"
 )
 
 var (
 	webrtcEngine *WebRTCEngine
 )
 
+// 单例，饿汉模式，init
 func init() {
 	webrtcEngine = NewWebRTCEngine()
 }
@@ -36,14 +37,14 @@ func (p *WebRTCPeer) Stop() {
 	close(p.pli)
 }
 
-//响应发送方
+// 响应发送方，与发布方建立连接
 func (p *WebRTCPeer) AnswerSender(offer webrtc.SessionDescription) (answer webrtc.SessionDescription, err error) {
 	util.Infof("WebRTCPeer.AnswerSender")
 	//创建接收
 	return webrtcEngine.CreateReceiver(offer, &p.PC, &p.VideoTrack, &p.AudioTrack, p.stop, p.pli)
 }
 
-//响应接收方
+// 响应接收方，与订阅方建立连接
 func (p *WebRTCPeer) AnswerReceiver(offer webrtc.SessionDescription, addVideoTrack **webrtc.Track, addAudioTrack **webrtc.Track) (answer webrtc.SessionDescription, err error) {
 	util.Infof("WebRTCPeer.AnswerReceiver")
 	//创建发送
