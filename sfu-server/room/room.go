@@ -75,7 +75,7 @@ func (roomManager *RoomManager) HandleNewWebSocket(conn *server.WebSocketConn, r
 		case MethodSubscribe:
 			processSubscribe(user, data, roomManager)
 			break
-		case MethodLeave:
+		case MethodLeave: // 客户端不会发送该信令
 			processJoin(user, data, roomManager)
 			break
 		case MethodFindMark: // 增加sfu服务器端收到主讲人mark消息处理
@@ -153,7 +153,7 @@ func processJoin(user *User, message map[string]interface{}, roomManager *RoomMa
 
 	room.pubPeerLock.RLock()
 	defer room.pubPeerLock.RUnlock()
-	//找到当前房间的所有发布者
+	//找到当前房间的所有发布者,向所有发布者发送“onpublish”消息
 	for peerId, _ := range room.pubPeers {
 		if peerId != user.ID() {
 			onPublish["pubid"] = peerId
@@ -261,7 +261,7 @@ func processSubscribe(user *User, message map[string]interface{}, roomManager *R
 	respStr := string(respByte)
 
 	if respStr != "" {
-		//返回给自己jsep// 向该user 发送subscribe消息
+		//返回给自己jsep// 向该user 发送onSubscribe消息
 		user.sendMessage(MethodOnSubscribe, resp)
 		log.Printf("Subscribe返回给自己的Id:%s", user.ID())
 		return
@@ -460,7 +460,7 @@ func (r *Room) answer(id string, pubid string, offer webrtc.SessionDescription, 
 	var answer webrtc.SessionDescription
 	if sender {
 		answer, err = p.AnswerSender(offer)
-	} else { // 订阅端为用户强制订阅所有发布流
+	} else { // 订阅端为用户强制订阅所有发布流，这里为建立订阅指定发布流的流程
 		r.pubPeerLock.RLock()
 
 		pub := r.pubPeers[pubid]
